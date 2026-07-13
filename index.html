@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Custom Family Tree Fan Chart Service</title>
+  <style>
+    :root {
+      --ink: #1f2a33;
+      --muted: #60717a;
+      --navy: #183a5a;
+      --sage: #617f69;
+      --gold: #b99048;
+      --cream: #fffaf0;
+      --paper: #fffdf8;
+      --line: #e4d4b4;
+      --shadow: 0 18px 45px rgba(54, 42, 24, 0.12);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 2%, rgba(217, 197, 141, 0.32), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(159, 187, 177, 0.26), transparent 30%),
+        linear-gradient(135deg, #fbf7ee 0%, #f1eadb 48%, #edf4f1 100%);
+      line-height: 1.55;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 16px clamp(18px, 4vw, 56px);
+      background: rgba(255, 253, 248, 0.9);
+      border-bottom: 1px solid rgba(226, 211, 181, 0.8);
+      backdrop-filter: blur(14px);
+    }
+    .brand {
+      display: grid;
+      gap: 2px;
+      color: var(--navy);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .brand span {
+      color: var(--muted);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: flex-end;
+      color: #3d4c54;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    nav a {
+      text-decoration: none;
+    }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 18px;
+      border: 1px solid #d2bd8d;
+      border-radius: 999px;
+      background: var(--cream);
+      color: #2e3c44;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 8px 20px rgba(72, 58, 34, 0.08);
+    }
+    .button.primary {
+      background: #225d88;
+      border-color: #225d88;
+      color: white;
+    }
+    .button.secondary {
+      background: rgba(255,255,255,0.78);
+    }
+    .button:focus-visible,
+    nav a:focus-visible {
+      outline: 3px solid rgba(47,111,159,0.34);
+      outline-offset: 3px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
+      gap: clamp(24px, 4vw, 56px);
+      align-items: center;
+      padding: clamp(34px, 7vw, 96px) clamp(18px, 5vw, 72px) 46px;
+    }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--sage);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 {
+      margin: 0;
+      color: var(--navy);
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 500;
+      line-height: 1.08;
+    }
+    h1 {
+      max-width: 920px;
+      font-size: clamp(42px, 6vw, 78px);
+    }
+    h2 {
+      font-size: clamp(30px, 4vw, 48px);
+    }
+    h3 {
+      font-size: 24px;
+    }
+    .lead {
+      max-width: 760px;
+      margin: 20px 0 0;
+      color: #3f5058;
+      font-size: clamp(18px, 2vw, 22px);
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+    .hero-card {
+      padding: 14px;
+      border: 1px solid rgba(226, 211, 181, 0.86);
+      border-radius: 22px;
+      background: rgba(255,253,248,0.76);
+      box-shadow: var(--shadow);
+    }
+    .hero-card img {
+      border-radius: 16px;
+      border: 1px solid rgba(226, 211, 181, 0.9);
+    }
+    .notice {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(185, 144, 72, 0.38);
+      border-radius: 14px;
+      background: rgba(255, 250, 240, 0.82);
+      color: #5b4a2f;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    section {
+      padding: 50px clamp(18px, 5vw, 72px);
+    }
+    .section-head {
+      display: grid;
+      gap: 10px;
+      max-width: 860px;
+      margin-bottom: 24px;
+    }
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card {
+      padding: 24px;
+      border: 1px solid rgba(226, 211, 181, 0.86);
+      border-radius: 18px;
+      background: rgba(255,253,248,0.78);
+      box-shadow: 0 10px 30px rgba(54, 42, 24, 0.08);
+    }
+    .card p {
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+    .step span {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      background: #e9f1ec;
+      color: #2f6c4f;
+      font-weight: 900;
+    }
+    .mockups {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .mockup {
+      overflow: hidden;
+      border: 1px solid rgba(226, 211, 181, 0.9);
+      border-radius: 18px;
+      background: white;
+      box-shadow: 0 10px 30px rgba(54, 42, 24, 0.08);
+    }
+    .mockup img {
+      width: 100%;
+      height: auto;
+    }
+    .mockup-caption {
+      padding: 14px 16px 16px;
+      border-top: 1px solid rgba(226, 211, 181, 0.9);
+      background: rgba(255,253,248,0.9);
+    }
+    .mockup-caption strong {
+      display: block;
+      color: var(--navy);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 20px;
+    }
+    .mockup-caption span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .option-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+      padding: 0;
+      list-style: none;
+    }
+    .option-list li {
+      padding: 8px 12px;
+      border: 1px solid #dfcfaa;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.72);
+      color: #3d4c54;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 24px;
+      align-items: center;
+    }
+    .checklist {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .checklist li {
+      padding-left: 28px;
+      position: relative;
+      color: #3e4d55;
+    }
+    .checklist li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--sage);
+    }
+    .faq details {
+      padding: 18px 20px;
+      border: 1px solid rgba(226, 211, 181, 0.86);
+      border-radius: 14px;
+      background: rgba(255,253,248,0.82);
+    }
+    .faq details + details {
+      margin-top: 10px;
+    }
+    .faq summary {
+      color: var(--navy);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .faq p {
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+    .cta {
+      margin: 28px clamp(18px, 5vw, 72px) 70px;
+      padding: clamp(28px, 5vw, 58px);
+      border: 1px solid rgba(226, 211, 181, 0.9);
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(255,253,248,0.96), rgba(234,243,238,0.86));
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .cta p {
+      max-width: 760px;
+      margin: 16px auto 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+    .cta .hero-actions {
+      justify-content: center;
+    }
+    footer {
+      padding: 26px clamp(18px, 5vw, 72px);
+      border-top: 1px solid rgba(226, 211, 181, 0.8);
+      color: var(--muted);
+      font-size: 14px;
+      background: rgba(255,253,248,0.7);
+    }
+    @media (max-width: 900px) {
+      .site-header {
+        position: static;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      nav {
+        justify-content: flex-start;
+      }
+      .hero,
+      .split,
+      .grid.two,
+      .grid.three,
+      .mockups {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 560px) {
+      .button { width: 100%; }
+      .hero-actions { width: 100%; }
+      nav a { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Custom Family Fan Charts">
+      Custom Family Fan Charts
+      <span>Done-for-you genealogy keepsakes</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#how">How It Works</a>
+      <a href="#styles">Style Options</a>
+      <a href="#send">What To Send</a>
+      <a href="#faq">FAQ</a>
+      <a class="button primary" href="#order">Order on Etsy</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Personalized family history wall art</p>
+        <h1>Custom genealogy fan charts created for you.</h1>
+        <p class="lead">Send your ancestor information, choose a style, and receive a finished printable family tree fan chart designed as a meaningful heirloom keepsake.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#order">Order on Etsy</a>
+          <a class="button secondary" href="#styles">View style options</a>
+        </div>
+        <div class="notice">This is a done-for-you digital service. You do not edit a template yourself.</div>
+      </div>
+      <div class="hero-card">
+        <img src="outputs/filled_actual_option_mockups_2026-07-12/garden-pastel_filled_centerfit.jpg" alt="Completed Garden Pastel genealogy fan chart example filled with fictional names">
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="section-head">
+        <p class="eyebrow">Simple ordering process</p>
+        <h2>How it works</h2>
+        <p>Customers can send information in the format they already have. I organize it into the correct chart spaces and prepare the finished printable file.</p>
+      </div>
+      <div class="grid three">
+        <div class="card step"><span>1</span><div><h3>Purchase</h3><p>Choose the chart generation count, file option, and any add-ons listed in the Etsy listing.</p></div></div>
+        <div class="card step"><span>2</span><div><h3>Send Details</h3><p>Send names, dates, title, and design preferences by Etsy message, spreadsheet, CSV, or document.</p></div></div>
+        <div class="card step"><span>3</span><div><h3>Receive File</h3><p>I create the chart, send the finished digital file, and complete included minor revisions if needed.</p></div></div>
+      </div>
+    </section>
+
+    <section id="styles">
+      <div class="section-head">
+        <p class="eyebrow">Completed examples</p>
+        <h2>See what a filled chart can look like.</h2>
+        <p>These examples use fictional names so customers can picture the finished result after their own family information is entered.</p>
+      </div>
+      <div class="mockups">
+        <div class="mockup">
+          <img src="outputs/filled_actual_option_mockups_2026-07-12/garden-pastel_filled_centerfit.jpg" alt="Completed Garden Pastel genealogy fan chart filled with fictional names">
+          <div class="mockup-caption"><strong>Garden Pastel</strong><span>A soft, colorful fan chart option shown fully filled with sample family details.</span></div>
+        </div>
+        <div class="mockup">
+          <img src="outputs/filled_actual_option_mockups_2026-07-12/vintage-parchment_filled_centerfit.jpg" alt="Completed Vintage Parchment genealogy fan chart filled with fictional names">
+          <div class="mockup-caption"><strong>Vintage Parchment</strong><span>A warm heritage-style paper option for a classic family history look.</span></div>
+        </div>
+        <div class="mockup">
+          <img src="outputs/filled_actual_option_mockups_2026-07-12/modern-minimal_filled_centerfit.jpg" alt="Completed Modern Minimal genealogy fan chart filled with fictional names">
+          <div class="mockup-caption"><strong>Modern Minimal</strong><span>A clean, understated chart option with soft neutral color styling.</span></div>
+        </div>
+        <div class="mockup">
+          <img src="outputs/filled_actual_option_mockups_2026-07-12/sage-blue_filled_centerfit.jpg" alt="Completed Sage and Blue genealogy fan chart filled with fictional names">
+          <div class="mockup-caption"><strong>Sage & Blue</strong><span>A light blue and sage option shown as a completed customer-style preview.</span></div>
+        </div>
+      </div>
+      <ul class="option-list" aria-label="Example style options">
+        <li>Garden Pastel</li>
+        <li>Vintage Parchment</li>
+        <li>Modern Minimal</li>
+        <li>Sage & Blue</li>
+        <li>Lavender & Gold</li>
+        <li>Coastal Mist</li>
+        <li>Cottage Floral</li>
+        <li>Black & Gold Luxe</li>
+        <li>Midnight Celestial</li>
+        <li>Art Deco Emerald</li>
+      </ul>
+    </section>
+
+    <section id="send">
+      <div class="split">
+        <div>
+          <p class="eyebrow">What customers send</p>
+          <h2>Use the family information you already have.</h2>
+          <p class="lead">A complete tree is not required. Unknown ancestors or missing dates can be left blank.</p>
+          <ul class="checklist">
+            <li>Center person name</li>
+            <li>Ancestor names, as many as available</li>
+            <li>Birth years and death years, if known</li>
+            <li>Preferred chart title</li>
+            <li>Preferred style, colors, or theme</li>
+            <li>Any spelling notes or special requests</li>
+          </ul>
+        </div>
+        <div class="mockup">
+          <img src="outputs/etsy_customer_listing_2026-07-11/05_information_to_send.png" alt="Information needed to create a custom ancestry fan chart">
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <p class="eyebrow">Digital delivery</p>
+        <h2>What the finished order includes</h2>
+        <p>The chart is delivered as a digital printable file. No physical item is shipped.</p>
+      </div>
+      <div class="grid two">
+        <div class="card">
+          <h3>Finished custom chart</h3>
+          <p>Ancestor names and dates are entered into the fan chart spaces using the information provided by the customer.</p>
+        </div>
+        <div class="card">
+          <h3>Printable digital file</h3>
+          <p>PNG is recommended for high-resolution printing. PDF or extra sizes can be offered as listing variations.</p>
+        </div>
+        <div class="card">
+          <h3>Design customization</h3>
+          <p>Choose chart title, paper style, fan colors, decorative accents, text color, and overall design direction.</p>
+        </div>
+        <div class="card">
+          <h3>Review and revisions</h3>
+          <p>Minor spelling or date corrections can be included based on the Etsy listing variation or shop policy.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="section-head">
+        <p class="eyebrow">Questions</p>
+        <h2>Helpful details before ordering</h2>
+      </div>
+      <details open>
+        <summary>Do customers edit this themselves?</summary>
+        <p>No. This is a done-for-you service. Customers send family information and style preferences, then I create the finished chart file.</p>
+      </details>
+      <details>
+        <summary>Is genealogy research included?</summary>
+        <p>No. The chart is created using the information provided by the customer. Research can be offered separately if you choose to add that service later.</p>
+      </details>
+      <details>
+        <summary>What if a customer does not know all ancestors?</summary>
+        <p>Blank spaces are completely fine. Charts can be created with fewer generations or with unknown names/dates left empty.</p>
+      </details>
+      <details>
+        <summary>What file does the customer receive?</summary>
+        <p>The standard delivery can be a high-resolution printable PNG. PDF, extra sizes, or rush delivery can be added as Etsy variations.</p>
+      </details>
+      <details>
+        <summary>Can customers choose the chart style?</summary>
+        <p>Yes. Customers can choose a preset or request preferences such as floral, masculine, parchment, modern, watercolor, travel, or luxury gold.</p>
+      </details>
+    </section>
+
+    <section class="cta" id="order">
+      <p class="eyebrow">Ready to preserve your family story?</p>
+      <h2>Order a custom fan chart through Etsy.</h2>
+      <p>Replace this button with your Etsy listing link when the listing is published. Customers will purchase on Etsy, then send their family information by Etsy message or file upload.</p>
+      <div class="hero-actions">
+        <a class="button primary" href="https://www.etsy.com" target="_blank" rel="noopener">Order on Etsy</a>
+        <a class="button secondary" href="#send">See what to send</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Custom genealogy fan charts are created from the information supplied by the customer. No physical item is shipped unless separately offered. This service is not affiliated with Ancestry, FamilySearch, or any genealogy company.
+  </footer>
+</body>
+</html>
